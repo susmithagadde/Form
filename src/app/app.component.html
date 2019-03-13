@@ -1,0 +1,325 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div class="container center_div">
+  <form (ngSubmit)="submit()">
+    <div [formGroup]="productForm" class="form-group">
+      <label class="control-label" for="formGroupId"
+        >Analytical Method ID</label
+      >
+      <input
+        required
+        type="text"
+        class="form-control"
+        formControlName="id"
+        id="formGroupId"
+      />
+      <div
+        class="alert alert-danger"
+        *ngIf="id.touched && id.invalid && id.errors.pattern"
+      >
+        <p *ngIf="id.errors.pattern">
+          spaces are not allowed!!
+        </p>
+      </div>
+    </div>
+    <div class="form-group" [formGroup]="productForm">
+      <label class="control-label" for="residueType">Target Residue Type</label>
+      <select
+        [(ngModel)]="dff"
+        name="type"
+        required
+        class="form-control"
+        formControlName="type1"
+        id="residueType"
+      >
+        <option>API</option>
+        <option>Cleaning Agent</option>
+        <option>Bioburden</option>
+        <option>Endotoxin</option>
+      </select>
+    </div>
+    <div *ngIf="dff === 'API' || dff === 'Cleaning Agent'">
+      <div class="form-row" [formGroup]="productForm">
+        <div class="lod">
+          <label class="control-label" for="lod_type">LOD (in ppm)</label>
+          <input required type="number" id="lod_type" class="form-control" formControlName="lod1"/>
+          <div
+        class="alert alert-danger "
+        *ngIf="lod1.touched && lod1.invalid && lod1.errors.min"
+      >
+        <p *ngIf="lod1.errors.min">
+         LOD number should not be less than or equals to zero.
+        </p>
+      </div>
+        </div>
+        <div class="loq">
+          <label class="control-label" for="loq_type">LOQ (in ppm)</label>
+          <input required type="number" id="loq_type" class="form-control" formControlName="loq1"/>
+          <div
+        class="alert alert-danger"
+        *ngIf="loq1.touched && loq1.invalid && loq1.errors.min"
+      >
+        <p *ngIf="loq1.errors.min">
+         LOQ number should not be less than or equals to zero.
+        </p>
+      </div>
+        </div>
+      </div>
+     
+      <div class="card mt-4">
+        <div
+          class="card-header pointerCursor"
+          [class.color_add]="!panelExpanded"
+          (click)="panelExpanded = !panelExpanded"
+        >
+          <h6 class="mb-0">
+            <span *ngIf="panelExpanded">
+              Configure Swab and Rinse sampling parameters</span
+            >
+            <span class="remove" *ngIf="!panelExpanded">
+              Remove Swab and Rinse sampling parameters</span
+            >
+            <i
+              class="fa"
+              [class.fa-plus-circle]="panelExpanded"
+              [class.fa-minus-circle]="!panelExpanded"
+            ></i>
+          </h6>
+        </div>
+
+        <div>
+          <div class="card-body" *ngIf="!panelExpanded">
+            <div class="form-group">
+              <label for="methodused">Method Used</label>
+              <input type="text" class="form-control" id="methodused" />
+            </div>
+            <div class="form-row">
+              <div class="lod">
+                <label for="sol_name">Solvent Name</label>
+                <input type="text" id="sol_name" class="form-control" />
+              </div>
+              <div class="loq">
+                <label for="sol-quantity">Solvent Quantity</label>
+                <input type="number" id="sol-quantity" class="form-control" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="recovery">Default Recovery(%)</label>
+              <input type="number" class="form-control" id="recovery" />
+            </div>
+
+            <div class="add-header" *ngIf="!addClicked">
+              <i class="fa fa-plus-circle" (click)="addMoc()"></i> Add MOC
+            </div>
+            <fieldset class="react" *ngIf="addClicked">
+              <div
+                class="form-group dynamic-element"
+                *ngFor="
+                  let moControl of productForm.get('add').controls;
+                  let i = index
+                "
+              >
+                <div class="row">
+                  <!-- Replace these fields -->
+                  <div class="form-group col-md-7">
+                    <label for="selectMoc">Select MOC</label>
+                    <select name="moc" class="form-control" id="selectMoc">
+                      <option [ngValue]="undefined" hidden selected> </option>
+                      <option>Stainless Steel</option>
+                      <option>Glass</option>
+                      <option>Teflon</option>
+                      <option>Plastic</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3" [formGroup]="productForm">
+                    <label for="recoveryDef">Recovery(%)</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [formControlName]="i"
+                      id="recoveryDef"
+                    />
+                  </div>
+
+                  <!-- End of fields-->
+                  <div class="col-md-1 close">
+                    <p class="delete" (click)="deleteMob(i)">x</p>
+                  </div>
+                </div>
+              </div>
+              <div class="pointerCursor another" (click)="addMoc()">
+                <i class="fa fa-plus-circle"></i>
+                Add Another <span>or</span> Create another MOC
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="dff === 'Bioburden' || dff === 'Endotoxin'">
+      <div class="form-group" >
+        <label class="control-label">Define TNTC and TFTC limits? </label><br />
+        <div class="form-check-inline" required [formGroup]="productForm2">
+          <label class="customradio"
+            ><span class="radiotextsty">Yes</span>
+            <input type="radio" formControlName="radio" checked="checked" name="radio" [(ngModel)]="radio" value="true"  />
+            <span class="checkmark"></span>
+          </label>
+          <label class="customradio"
+            ><span class="radiotextsty">No</span>
+            <input type="radio" formControlName="radio" name="radio" [(ngModel)]="radio" value="false"  />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="form-row" *ngIf="radio == 'true'" [formGroup]="productForm2">
+        <div class="limit_tntc">
+          <label class="control-label" for="tntc">TNTC Limit(in CFU)</label>
+          <input type="number" required id="tntc" class="form-control" formControlName="tntc1"/>
+          <div
+            class="alert alert-danger"
+            *ngIf="tntc1.touched && tntc1.invalid && tntc1.errors.min"
+             >
+            <p *ngIf="tntc1.errors.min">
+            TNTC should not be less than or equals to zero.
+            </p>
+          </div>
+        </div>
+        <div class="limit_tftc">
+          <label class="control-label" for="tftc">TFTC Limit(in CFU)</label>
+          <input type="number" required id="tftc" class="form-control" formControlName="tftc1" />
+          <div
+            class="alert alert-danger"
+            *ngIf="tftc1.touched && tftc1.invalid && tftc1.errors.min"
+             >
+            <p *ngIf="tftc1.errors.min">
+            TFTC should not be less than or equals to zero.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card mt-4 config">
+        <div
+          class="expand-header pointerCursor"
+          [class.color_add]="!panelExpanded1"
+          (click)="panelExpanded1 = !panelExpanded1"
+        >
+          <h6 class="mb-0">
+              <i
+              class="fa"
+              [class.fa-plus-circle]="panelExpanded1"
+              [class.fa-minus-circle]="!panelExpanded1"
+            ></i>
+            <span class="add_config" *ngIf="panelExpanded1">
+              Configure Swab and Rinse sampling parameters</span
+            >
+            <span class="remove" *ngIf="!panelExpanded1">
+              Remove Swab and Rinse sampling parameters</span
+            >
+            
+          </h6>
+        </div>
+
+        <div>
+          <div class="card-body" *ngIf="!panelExpanded1">
+            <div class="form-group">
+              <label for="methodused">Method Used</label>
+              <input type="text" class="form-control" id="methodused" />
+            </div>
+            <div class="form-row">
+              <div class="lod">
+                <label for="sol_name">Solvent Name</label>
+                <input type="text" id="sol_name" class="form-control" />
+              </div>
+              <div class="loq">
+                <label for="sol-quantity">Solvent Quantity</label>
+                <input type="number" id="sol-quantity" class="form-control" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="recovery">Default Recovery(%)</label>
+              <input type="number" class="form-control" id="recovery" />
+            </div>
+
+            <div class="add-header" *ngIf="!addClicked">
+              <i class="fa fa-plus-circle" (click)="addMoc1()"></i> Add MOC
+            </div>
+            <fieldset class="react" *ngIf="addClicked">
+              <div
+                class="form-group dynamic-element"
+                *ngFor="
+                  let moControl of productForm2.get('add1').controls;
+                  let i = index
+                "
+              >
+                <div class="row">
+                  <!-- Replace these fields -->
+                  <div class="form-group col-md-7">
+                    <label for="selectMoc">Select MOC</label>
+                    <select name="moc" class="form-control" id="selectMoc">
+                      <option [ngValue]="undefined" hidden selected> </option>
+                      <option>Stainless Steel</option>
+                      <option>Glass</option>
+                      <option>Teflon</option>
+                      <option>Plastic</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-3" [formGroup]="productForm2">
+                    <label for="recoveryDef">Recovery(%)</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [formControlName]="i"
+                      id="recoveryDef"
+                    />
+                  </div>
+
+                  <!-- End of fields-->
+                  <div class="col-md-1 close">
+                    <p class="delete" (click)="deleteMob1(i)">x</p>
+                  </div>
+                </div>
+              </div>
+              <div class="pointerCursor another" (click)="addMoc1()">
+                <i class="fa fa-plus-circle"></i>
+                Add Another <span>or</span> Create another MOC
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div [formGroup]="productForm2" class="form-group">
+      <label class="control-label" for="form_reason">Reason</label>
+      <input
+        required
+        type="text"
+        formControlName="reason"
+        class="form-control"
+        id="form_reason"
+      />
+    </div>
+    <button
+      class="btn btn-primary pull-right"
+      type="submit"
+      *ngIf="saveData && dff"
+      [disabled]="((dff === 'API' && !productForm.valid) || (dff === 'Bioburden' && !productForm2.valid) && (dff ===''))"
+      (click)="saveData = !saveData"
+    >
+      ADD
+    </button>
+    <button
+      class="btn btn-primary pull-right"
+      *ngIf="!saveData"
+      [disabled]="(dff === 'API' && !productForm.valid) || (dff === 'Bioburden' && !productForm2.valid)"
+      (click)="saveData = !saveData"
+    >
+      EDIT
+    </button>
+  </form>
+</div>
+<router-outlet></router-outlet>
